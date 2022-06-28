@@ -29,7 +29,7 @@ app.layout = html.Div([
     html.Div([
         dcc.Graph(id='race-scatter'),
     ], style={'display': 'inline-block', 'width': '49%'}),
-hhtml.Div([
+html.Div([
     html.Div(dcc.RangeSlider(
         grouped_norace['YEAR'].min(),
         grouped_norace['YEAR'].max(),
