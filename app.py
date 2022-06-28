@@ -29,13 +29,13 @@ app.layout = html.Div([
     html.Div([
         dcc.Graph(id='race-scatter'),
     ], style={'display': 'inline-block', 'width': '49%'}),
-html.Div([
-    html.Div(dcc.Slider(
+hhtml.Div([
+    html.Div(dcc.RangeSlider(
         grouped_norace['YEAR'].min(),
         grouped_norace['YEAR'].max(),
         step=None,
         id='crossfilter-year--slider',
-        value=grouped_norace['YEAR'].max(),
+        value=[grouped_norace['YEAR'].min(), grouped_norace['YEAR'].max()],
         marks={str(year): str(year) for year in grouped_norace['YEAR'].unique()}
     ), style={'width': '49%', 'display': 'inline-block', 'padding-bottom':'25%'}),
     html.Div([
@@ -49,7 +49,8 @@ html.Div([
     Output('crossfilter-indicator-scatter', 'figure'),
     Input('crossfilter-year--slider', 'value'))
 def update_graph(year_value):
-    dat = grouped_norace[grouped_norace['YEAR'] == year_value]
+    filter_mask = (grouped_norace['YEAR'] >= year_value[0]) & (grouped_norace['YEAR'] <= year_value[1])
+    dat = grouped_norace[filter_mask]
     fig = px.scatter(dat, x="HITRATE", y="num_searches", color="District", hover_data=['Beat','YEAR','District'],
     labels={ "HITRATE": "Hit Rate",
              "num_searches": "Number of Searches",
