@@ -4,31 +4,36 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.graph_objects import Layout
 from plotly.validator_cache import ValidatorCache
+import numpy as np
+import json
+from urllib.request import urlopen
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
-server = app.server
-
 grouped = pd.read_csv('https://github.com/amandakube/trafficstopsdata/blob/eb589cff0cb99bbd797e69929c40d00330845a74/groupeddata.csv?raw=true')
 grouped_norace = pd.read_csv('https://github.com/amandakube/trafficstopsdata/blob/eb589cff0cb99bbd797e69929c40d00330845a74/groupeddata_norace.csv?raw=true')
 grouped["Beat"] = grouped["BEAT_I"].astype(str)
+grouped["Beat"] = grouped["Beat"].apply(lambda x: x.zfill(4))
 grouped_norace["Beat"] = grouped_norace["BEAT_I"].astype(str)
+grouped_norace["Beat"] = grouped_norace["Beat"].apply(lambda x: x.zfill(4))
 grouped["District"] = grouped["District"].astype(str)
 grouped_norace["District"] = grouped_norace["District"].astype(str)
 
+with urlopen('https://github.com/amandakube/trafficstopsdata/blob/133c6683058c889f60d2ee5914e5968b42246ce1/Boundaries-PoliceBeats(current).geojson?raw=true') as policebeats:
+    gj = json.load(policebeats)
 
 app.layout = html.Div([
     html.Div([
         dcc.Graph(
             id='crossfilter-indicator-scatter',
-            hoverData={'points': [{'customdata': '122'},{'customdata': '01'}]}
+            hoverData={'points': [{'customdata': '1112'},{'customdata': '01'}]}
         )
     ], style={'width': '49%', 'display': 'inline-block'}),
     html.Div([
-        dcc.Graph(id='race-scatter'),
-    ], style={'display': 'inline-block', 'width': '49%'}),
+        dcc.Graph(id='map'),
+    ], style={'display': 'inline-block', 'width': '49%'}), 
 html.Div([
     html.Div(dcc.RangeSlider(
         grouped_norace['YEAR'].min(),
@@ -37,11 +42,12 @@ html.Div([
         id='crossfilter-year--slider',
         value=[grouped_norace['YEAR'].min(), grouped_norace['YEAR'].max()],
         marks={str(year): str(year) for year in grouped_norace['YEAR'].unique()}
-    ), style={'width': '49%', 'display': 'inline-block', 'padding-bottom':'25%'}),
+    ), style={'width': '49%', 'display': 'inline-block'}),
+    dcc.Graph(id='race-scatter'),
+    ], style={'display': 'inline', 'width': '49%'}),
     html.Div([
         dcc.Graph(id='race-scatter-dist'),
-    ], style={'display': 'inline-block', 'width': '49%'}),
-]) 
+    ], style={'display': 'inline', 'width': '49%'}),
 ])
 
 
@@ -98,6 +104,30 @@ def update_race_scatter_dist(hoverData):
     title = 'District Number: <b>{}</b>'.format(dist_name)
     return create_racescatter(dff,title)
 
+#token = open(".mapbox_token").read() # you will need your own token
 
-if __name__ == '__main__':
-    app.run_server(threaded=True)
+
+def display_choropleth(df, title):
+    fig = px.choropleth(
+        df, geojson=gj, color="ColorBeat",
+        locations="Beat", featureidkey="properties.beat_num",
+        labels={"ColorBeat": ""},title=title)
+    fig.update_geos(fitbounds="locations", visible=False)
+    return fig
+
+@app.callback(
+    Output("map", "figure"), 
+    Input("crossfilter-indicator-scatter", "hoverData"))
+def update_choropleth(hoverData):
+    beat_name = hoverData['points'][0]['customdata'][0]
+    district_name = hoverData['points'][0]['customdata'][2]
+    df = grouped_norace[grouped_norace['YEAR'] == 2021]
+    df.loc[:,'ColorBeat'] = "Chicago, IL"
+    df.loc[(df['District'] == district_name),'ColorBeat'] = 'District: <b>{}</b>'.format(district_name)
+    df.loc[(df['Beat'] == beat_name),'ColorBeat'] = 'Beat: <b>{}</b>'.format(beat_name)
+    title = 'Map of Chicago, IL Police Beats'.format(district_name, beat_name)
+
+    return display_choropleth(df, title)
+
+
+app.run_server(threaded=True)
