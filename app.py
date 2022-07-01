@@ -21,7 +21,7 @@ grouped_norace["Beat"] = grouped_norace["Beat"].apply(lambda x: x.zfill(4))
 grouped["District"] = grouped["District"].astype(str)
 grouped_norace["District"] = grouped_norace["District"].astype(str)
 
-with urlopen('https://github.com/amandakube/trafficstopsdata/blob/133c6683058c889f60d2ee5914e5968b42246ce1/Boundaries-PoliceBeats(current).geojson?raw=true') as policebeats:
+with urlopen('https://github.com/amandakube/trafficstopsdata/blob/4f771bf1d034f032b4edc5198870ded86df0549d/Boundaries-PoliceBeats(current).geojson?raw=true') as policebeats:
     gj = json.load(policebeats)
 
 app.layout = html.Div([
