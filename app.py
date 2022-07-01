@@ -129,5 +129,5 @@ def update_choropleth(hoverData):
 
     return display_choropleth(df, title)
 
-
-app.run_server(threaded=True)
+if __name__ == '__main__':
+    app.run_server(threaded=True)
