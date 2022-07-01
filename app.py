@@ -12,6 +12,8 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
+server = app.server
+
 grouped = pd.read_csv('https://github.com/amandakube/trafficstopsdata/blob/e05badb2c7643e8161d4a7c3ee4c722eec4a0fb7/groupeddata.csv?raw=true')
 grouped_norace = pd.read_csv('https://github.com/amandakube/trafficstopsdata/blob/8ab7012b2e39c27ce86c68ed2a29f58ab114bfca/groupeddata_norace.csv?raw=true')
 grouped["Beat"] = grouped["BEAT_I"].astype(str)
