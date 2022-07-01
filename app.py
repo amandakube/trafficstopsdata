@@ -115,7 +115,6 @@ def display_choropleth(df, title):
         locations="Beat", featureidkey="properties.beat_num",
         labels={"ColorBeat": ""},title=title)
     fig.update_geos(fitbounds="locations", visible=False)
-    fig.update_layout(margin={"r":0,"t":10,"l":0,"b":0})
     return fig
 
 @app.callback(
