@@ -16,12 +16,6 @@ server = app.server
 
 grouped = pd.read_csv('https://github.com/amandakube/trafficstopsdata/blob/e05badb2c7643e8161d4a7c3ee4c722eec4a0fb7/groupeddata.csv?raw=true')
 grouped_norace = pd.read_csv('https://github.com/amandakube/trafficstopsdata/blob/8ab7012b2e39c27ce86c68ed2a29f58ab114bfca/groupeddata_norace.csv?raw=true')
-grouped["Beat"] = grouped["BEAT_I"].astype(str)
-grouped["Beat"] = grouped["Beat"].apply(lambda x: x.zfill(4))
-grouped_norace["Beat"] = grouped_norace["BEAT_I"].astype(str)
-grouped_norace["Beat"] = grouped_norace["Beat"].apply(lambda x: x.zfill(4))
-grouped["District"] = grouped["District"].astype(str)
-grouped_norace["District"] = grouped_norace["District"].astype(str)
 
 with urlopen('https://github.com/amandakube/trafficstopsdata/blob/4f771bf1d034f032b4edc5198870ded86df0549d/Boundaries-PoliceBeats(current).geojson?raw=true') as policebeats:
     gj = json.load(policebeats)
